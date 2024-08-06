@@ -100,6 +100,11 @@ export default function Home() {
                             value={itemName}
                             onChange={(e) => setItemName(e.target.value)}
                         />
+                        <Button variant="outlined" onClick={() => {
+                            addItem(itemName)
+                            setItemName('')
+                            handleClose()
+                        }}>Add</Button>
                     </Stack>
                 </Box>
             </Modal>
