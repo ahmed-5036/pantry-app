@@ -4,6 +4,15 @@ import {Box, Button, Fab, Modal, Stack, TextField, Typography} from "@mui/materi
 import {collection, deleteDoc, doc, getDoc, getDocs, query, setDoc} from "firebase/firestore";
 import {useEffect, useState} from "react";
 import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell, {tableCellClasses} from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
+import {styled} from '@mui/material/styles';
 
 const style = {
     position: 'absolute',
@@ -21,6 +30,31 @@ const style = {
     flexDirection: 'column',
     gap: 3,
 };
+
+const StyledTableCell = styled(TableCell)(({theme}) => ({
+    [`&.${tableCellClasses.head}`]: {
+        backgroundColor: theme.palette.common.black,
+        color: theme.palette.common.white,
+    },
+    [`&.${tableCellClasses.body}`]: {
+        fontSize: 14,
+        color: theme.palette.common.white,  // Ensure text color is white for better contrast
+    },
+}));
+
+const StyledTableRow = styled(TableRow)(({theme}) => ({
+    '&:nth-of-type(odd)': {
+        backgroundColor: '#1E1E1E',
+        color: theme.palette.common.white,
+    },
+    '&:nth-of-type(even)': {
+        backgroundColor: '#303030',
+        color: theme.palette.common.white,
+    },
+    '&:last-child td, &:last-child th': {
+        border: 0,
+    },
+}));
 
 export default function Home() {
     const [pantry, setPantry] = useState([]);
@@ -101,9 +135,9 @@ export default function Home() {
                             onChange={(e) => setItemName(e.target.value)}
                         />
                         <Button variant="outlined" onClick={() => {
-                            addItem(itemName)
-                            setItemName('')
-                            handleClose()
+                            addItem(itemName);
+                            setItemName('');
+                            handleClose();
                         }}>Add</Button>
                     </Stack>
                 </Box>
@@ -114,7 +148,9 @@ export default function Home() {
                 width="90%"
                 maxWidth="800px"
                 margin="auto"
-                position="relative" // Set relative positioning for the container
+                display="flex"
+                flexDirection="column"
+                position="relative" // Ensure the container is positioned relatively for absolute positioning of children
             >
                 <Box
                     width="100%"
@@ -123,75 +159,69 @@ export default function Home() {
                     display="flex"
                     alignItems="center"
                     justifyContent="center"
-                    position="relative" // Ensure absolute positioning of children
+                    position="relative" // Position relative for the absolute positioning of the Fab button
                 >
                     <Typography
                         variant="h3"
                         color="#333"
                         textAlign="center"
                         fontWeight="300"
+                        flex="1" // Allow Typography to take up space and push other content to the right
                     >
                         Pantry Items
                     </Typography>
-                    <Fab
-                        color="primary"
-                        aria-label="add"
-                        onClick={handleOpen}
-                        sx={{
-                            position: 'absolute',
-                            right: 16, // Adjust spacing from the right edge
-                            bottom: 16, // Adjust spacing from the bottom edge
-                        }}
+                    <Box
+                        position="absolute"
+                        right={16}
+                        top="50%"
+                        sx={{transform: 'translateY(-50%)'}}
                     >
-                        <AddIcon/>
-                    </Fab>
-                </Box>
-                <Stack
-                    width="100%"
-                    maxHeight="300px"
-                    spacing={2}
-                    overflow="auto"
-                    alignItems="center"
-                >
-                    {pantry.map(({name, count}) => (
-                        <Box
-                            key={name}
-                            width="100%"
-                            minHeight="150px"
-                            display="flex"
-                            justifyContent="space-between"
-                            paddingX={2}
-                            alignItems="center"
-                            bgcolor="#f0f0f0"
-                            sx={{
-                                '@media (min-width:600px)': {paddingX: 5},
-                                '@media (max-width:600px)': {paddingX: 1}
-                            }}
+                        <Fab
+                            color="primary"
+                            aria-label="add"
+                            onClick={handleOpen}
                         >
-                            <Typography
-                                variant="h3"
-                                color="#333"
-                                textAlign="center"
-                                fontWeight="bold"
-                            >
-                                {name.charAt(0).toUpperCase() + name.slice(1).toLowerCase()}
-                            </Typography>
-                            <Typography variant="h3" color="#333" textAlign="center">
-                                Quantity: {count}
-                            </Typography>
-                            <Button
-                                variant="outlined"
-                                onClick={() => {
-                                    removeItem(name);
-                                    setItemName('');
-                                    handleClose();
-                                }}
-                            >
-                                Remove
-                            </Button>
-                        </Box>
-                    ))}
-                </Stack>
+                            <AddIcon/>
+                        </Fab>
+                    </Box>
+                </Box>
+                <TableContainer component={Paper} sx={{maxHeight: 300}}>
+                    <Table sx={{minWidth: 700}} aria-label="pantry table">
+                        <TableHead>
+                            <TableRow>
+                                <StyledTableCell align="left">Name</StyledTableCell>
+                                <StyledTableCell align="center">Quantity</StyledTableCell>
+                                <StyledTableCell align="right">Action</StyledTableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {pantry.map(({name, count}) => (
+                                <StyledTableRow key={name}>
+                                    <StyledTableCell component="th" scope="row"><Typography
+                                        variant="h4">
+                                        {name.charAt(0).toUpperCase() + name.slice(1).toLowerCase()}</Typography>
+                                    </StyledTableCell>
+                                    <StyledTableCell align="center"><Typography
+                                        variant="h5">{count}</Typography></StyledTableCell>
+                                    <StyledTableCell align="right">
+                                        <Button
+                                            variant="contained"
+                                            onClick={() => {
+                                                removeItem(name);
+                                                setItemName('');
+                                                handleClose();
+                                            }}
+
+                                            startIcon={<DeleteIcon/>}
+                                        >
+                                            Remove
+                                        </Button>
+                                    </StyledTableCell>
+                                </StyledTableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
             </Box>
         </Box>
     );
