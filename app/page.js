@@ -60,7 +60,7 @@ export default function Home() {
 
     const removeItem = async (item) => {
         const docRef = doc(collection(firestore, 'pantry'), item)
-        const docSnapshot = await getDocs(docRef);
+        const docSnapshot = await getDoc(docRef);
         if (docSnapshot.exists()) {
             const {count} = docSnapshot.data();
             if (count === 1) {
