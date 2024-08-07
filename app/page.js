@@ -266,20 +266,27 @@ export default function Home() {
 
 
             </Box>
-            <Fab
-                variant="extended"
-                color="primary"
-                aria-label="add"
-                onClick={handleOpen}
-                sx={{
-                    marginBottom: '12px',
-                    boxShadow: 3
-                }}
-            >
-                <AddIcon/>
-                Add Item
-            </Fab>
 
+            <Box
+                position="fixed"
+                bottom={16} // Adjust as needed for spacing from the bottom
+                left="50%"
+                sx={{transform: 'translateX(-50%)'}}
+            >
+                <Fab
+                    variant="extended"
+                    color="primary"
+                    aria-label="add"
+                    onClick={handleOpen}
+                    sx={{
+                        marginBottom: '12px',
+                        boxShadow: 3
+                    }}
+                >
+                    <AddIcon/>
+                    Add Item
+                </Fab>
+            </Box>
         </Box>
     );
 }
