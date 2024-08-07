@@ -276,11 +276,11 @@ export default function Home() {
                 sx={{
                     position: 'absolute',
                     bottom: 12,
-
+                    minWidth: 165,
                     boxShadow: 3
                 }}
             >
-                <AddIcon/>
+                <AddIcon sx={{fontSize: '2rem'}}/>
                 Add Item
             </Fab>
 
