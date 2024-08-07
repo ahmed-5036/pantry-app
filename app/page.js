@@ -207,7 +207,7 @@ export default function Home() {
                     {/*    </Fab>*/}
                     {/*</Box>*/}
                 </Box>
-                <TableContainer component={Paper} sx={{maxHeight: 300}}>
+                <TableContainer component={Paper} sx={{maxHeight: 300, overflowX: 'auto'}}>
                     <Table sx={{minWidth: 700}} aria-label="pantry table">
                         <TableHead>
                             <TableRow>
@@ -271,6 +271,10 @@ export default function Home() {
                 color="primary"
                 aria-label="add"
                 onClick={handleOpen}
+                sx={{
+                    marginBottom: '12px',
+                    boxShadow: 3
+                }}
             >
                 <AddIcon/>
                 Add Item
