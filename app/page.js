@@ -11,6 +11,7 @@ import TableCell, {tableCellClasses} from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
+import TableSortLabel from '@mui/material/TableSortLabel';
 import Paper from '@mui/material/Paper';
 import {styled} from '@mui/material/styles';
 
@@ -33,8 +34,8 @@ const style = {
 
 const StyledTableCell = styled(TableCell)(({theme}) => ({
     [`&.${tableCellClasses.head}`]: {
-        backgroundColor: theme.palette.common.black,
-        color: theme.palette.common.white,
+        backgroundColor: theme.palette.common.white,
+        color: '#303030',
     },
     [`&.${tableCellClasses.body}`]: {
         fontSize: 14,
@@ -62,6 +63,9 @@ export default function Home() {
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
     const [itemName, setItemName] = useState("");
+    const [order, setOrder] = useState('asc');
+    const [orderBy, setOrderBy] = useState('name');
+
 
     const updatePantry = async () => {
         const snapshot = query(collection(firestore, 'pantry'));
@@ -103,6 +107,24 @@ export default function Home() {
             await updatePantry();
         }
     };
+
+    const handleRequestSort = (property) => {
+        const isAsc = orderBy === property && order === 'asc';
+        setOrder(isAsc ? 'desc' : 'asc');
+        setOrderBy(property);
+    };
+
+    const sortedPantry = [...pantry].sort((a, b) => {
+        if (orderBy === 'name') {
+            return order === 'asc'
+                ? a.name.localeCompare(b.name)
+                : b.name.localeCompare(a.name);
+        } else if (orderBy === 'count') {
+            return order === 'asc' ? a.count - b.count : b.count - a.count;
+        }
+        return 0;
+    });
+
 
     return (
         <Box
@@ -170,39 +192,58 @@ export default function Home() {
                     >
                         Pantry Items
                     </Typography>
-                    <Box
-                        position="absolute"
-                        right={16}
-                        top="50%"
-                        sx={{transform: 'translateY(-50%)'}}
-                    >
-                        <Fab
-                            color="primary"
-                            aria-label="add"
-                            onClick={handleOpen}
-                        >
-                            <AddIcon/>
-                        </Fab>
-                    </Box>
+                    {/*<Box*/}
+                    {/*    position="absolute"*/}
+                    {/*    right={16}*/}
+                    {/*    top="50%"*/}
+                    {/*    sx={{transform: 'translateY(-50%)'}}*/}
+                    {/*>*/}
+                    {/*    <Fab*/}
+                    {/*        color="primary"*/}
+                    {/*        aria-label="add"*/}
+                    {/*        onClick={handleOpen}*/}
+                    {/*    >*/}
+                    {/*        <AddIcon/>*/}
+                    {/*    </Fab>*/}
+                    {/*</Box>*/}
                 </Box>
                 <TableContainer component={Paper} sx={{maxHeight: 300}}>
                     <Table sx={{minWidth: 700}} aria-label="pantry table">
                         <TableHead>
                             <TableRow>
-                                <StyledTableCell align="left">Name</StyledTableCell>
-                                <StyledTableCell align="center">Quantity</StyledTableCell>
+                                <StyledTableCell sortDirection={orderBy === 'name' ? order : false}>
+                                    <TableSortLabel
+                                        active={orderBy === 'name'}
+                                        direction={orderBy === 'name' ? order : 'asc'}
+                                        onClick={() => handleRequestSort('name')}
+                                    >
+                                        Name
+                                    </TableSortLabel>
+                                </StyledTableCell>
+                                <StyledTableCell align="center" sortDirection={orderBy === 'count' ? order : false}>
+                                    <TableSortLabel
+                                        active={orderBy === 'count'}
+                                        direction={orderBy === 'count' ? order : 'asc'}
+                                        onClick={() => handleRequestSort('count')}
+                                    >
+                                        Quantity
+                                    </TableSortLabel>
+                                </StyledTableCell>
                                 <StyledTableCell align="right">Action</StyledTableCell>
                             </TableRow>
                         </TableHead>
+
                         <TableBody>
-                            {pantry.map(({name, count}) => (
+                            {sortedPantry.map(({name, count}) => (
                                 <StyledTableRow key={name}>
-                                    <StyledTableCell component="th" scope="row"><Typography
-                                        variant="h4">
-                                        {name.charAt(0).toUpperCase() + name.slice(1).toLowerCase()}</Typography>
+                                    <StyledTableCell component="th" scope="row">
+                                        <Typography variant="h4">
+                                            {name.charAt(0).toUpperCase() + name.slice(1).toLowerCase()}
+                                        </Typography>
                                     </StyledTableCell>
-                                    <StyledTableCell align="center"><Typography
-                                        variant="h5">{count}</Typography></StyledTableCell>
+                                    <StyledTableCell align="center">
+                                        <Typography variant="h5">{count}</Typography>
+                                    </StyledTableCell>
                                     <StyledTableCell align="right">
                                         <Button
                                             variant="contained"
@@ -211,7 +252,6 @@ export default function Home() {
                                                 setItemName('');
                                                 handleClose();
                                             }}
-
                                             startIcon={<DeleteIcon/>}
                                         >
                                             Remove
@@ -220,9 +260,22 @@ export default function Home() {
                                 </StyledTableRow>
                             ))}
                         </TableBody>
+
                     </Table>
                 </TableContainer>
+
+
             </Box>
+            <Fab
+                variant="extended"
+                color="primary"
+                aria-label="add"
+                onClick={handleOpen}
+            >
+                <AddIcon/>
+                Add Item
+            </Fab>
+
         </Box>
     );
 }
